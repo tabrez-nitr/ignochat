@@ -43,7 +43,7 @@ const ChatInput = ({ onSendMessage }) => {
             focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-950 
             disabled:cursor-not-allowed disabled:opacity-50 
             dark:border-zinc-800 dark:placeholder:text-zinc-400 dark:focus-visible:ring-zinc-300
-            resize-none min-h-[44px] overflow-hidden"
+            resize-none min-h-11 overflow-hidden"
             // Simple auto-resize logic could go here
           />
         </div>

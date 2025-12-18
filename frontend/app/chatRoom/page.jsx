@@ -1,11 +1,11 @@
 import React from 'react'
-import Chat from "@/components/Chat";
+import ChatPage from "@/components/Chat";
 
 
 function page() {
   return (
     <div>
-        <Chat/>
+        <ChatPage/>
     </div>
   )
 }

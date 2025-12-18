@@ -2,19 +2,26 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
+import dotenv from 'dotenv'
 
 const app = express();
 
+
+
+//config dot env 
+dotenv.config();
+
+
+const client = process.env.CLIENT_URL || 'http://localhost:3000'
 //  middleware on app
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: client,
     credentials: true,
   })
 );
 
-//store room info : {'room code ' : 'adminSocketId'}
-//store admin id if the admin leaves we delete the room \
+// store socket id of admin 
 const rooms = {};
 
 //middelwares 
@@ -25,7 +32,7 @@ const server = http.createServer(app);
 //  socket.io CORS (important)
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: client,
     credentials: true,
   },
 });
@@ -40,6 +47,7 @@ io.on("connection", (socket) => {
 
   //create room 
   socket.on('create-room',(callback)=>{
+    console.log('create room called ')
     //generate room code of 6 charcters 
     const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
 
@@ -96,12 +104,9 @@ socket.on('disconnect', ()=>{
     delete rooms[roomCode];
     console.log(`Room ${roomCode} closed because admin left.`);
   }
-
 })
 });
 
-
-
-server.listen(8000, () => {
+server.listen(process.env.PORT || 8000, () => {
   console.log("listening to server");
 });

@@ -1,10 +1,10 @@
 'use client'
-import { useEffect, useState, useRef } from "react"
-import { useSearchParams , useRouter } from "next/navigation";
+import { useEffect, useState, useRef , Suspense } from "react"
+import { useSearchParams , useRouter  } from "next/navigation";
 import socket from "@/socket/socket"
-import { type } from "os";
 
-function Chat() {
+
+function ChatContent() {
     const [msg, setMsg] = useState('');
     const [allMsg, setAllMsg] = useState([]);
      const messagesEndRef = useRef(null);// Ref to auto-scroll to bottom
@@ -17,32 +17,28 @@ function Chat() {
      const isAdmin = searchParams.get('admin') == 'true';
 
      // if there is no room code go back home 
-
      useEffect(()=>{
+
         if(!roomCode)
         {
             router.push('/')
             return 
         }
-
-
+       
+        socket.connect(); // Connect manually on mount
         //creating functions which will be passed to socket and run seprately 
         function connect(){
             console.log("connected to socket" , socket.id);
         }
-
         // handel standard message 
         function onMessage(newMessage){
             // We assume backend sends just the string or object
             // For now, let's wrap it uniformly
             setAllMsg((prev)=>[...prev,{text : newMessage ,type : 'received'}]);
         }
-
         function onSystemMessage(sysMsg){
              setAllMsg((prev)=>[...prev,{text : sysMsg , type : 'system'}]);
         }
-
-    
         //if admin leaves the room 
         function onRoomClosed(){
             alert('Admin Has left the room ')
@@ -171,5 +167,11 @@ function Chat() {
         </div>
     )
 }
-
-export default Chat
+// 3. CREATE THE WRAPPER (This becomes the default export)
+export default function ChatPage() {
+    return (
+        <Suspense fallback={<div className="flex items-center justify-center h-screen bg-black text-neutral-500">Loading Chat Room...</div>}>
+            <ChatContent />
+        </Suspense>
+    )
+}

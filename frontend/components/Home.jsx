@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState , useEffect } from 'react'
 import { useRouter } from 'next/navigation';
 import socket from '@/socket/socket';
 
@@ -13,6 +13,34 @@ function HomeComponents() {
 
 
 
+  useEffect(() => {
+        console.log("Attempting to connect to server...");
+        
+        
+        if (!socket.connected) {
+            socket.connect();
+        }
+
+        // 2. Listen for success
+        function onConnect() {
+            console.log("✅ SUCCESS: Connected to server with ID:", socket.id);
+        }
+
+        // 3. Listen for ERRORS (This is the important part!)
+        function onConnectError(err) {
+            console.error("❌ CONNECTION ERROR:", err.message);
+            console.log("Check your server terminal. Is it running?");
+            console.log("Check your URL. Are you pointing to localhost:8000?");
+        }
+
+        socket.on("connect", onConnect);
+        socket.on("connect_error", onConnectError);
+
+        return () => {
+            socket.off("connect", onConnect);
+            socket.off("connect_error", onConnectError);
+        };
+    }, []);
      
     const handleJoinClick = () => {
         setJoinRoom(true);
@@ -22,13 +50,13 @@ function HomeComponents() {
     // create room logic handel 
     const createRoomHandle = (e) =>{
         e.preventDefault();
+        console.log("Create room clicked ")
         socket.emit('create-room',(response)=>{
+            console.log('inside create room emit')
             // Server responds with the new room code
             // Navigate to chat page with the code in the URL
             router.push(`/chatRoom?room=${response.roomCode}&admin=true`)
         })
-        router.push('/chatRoom')
-
     }
 
     // room join logic 
